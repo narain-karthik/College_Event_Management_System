@@ -2,8 +2,6 @@
 
 A comprehensive, role-based web application designed for managing college events, bookings, and approvals efficiently. Built for **Cauvery College for Women** using Python and Flask.
 
-![Event Management System Banner](static/images/college_logo.png)
-
 ## 🚀 Features
 
 ### for Students
