@@ -1,0 +1,146 @@
+{% extends "layout.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1><i class="bi bi-gear me-2"></i>Admin Dashboard</h1>
+  <p>Manage your college event system</p>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-3 mb-3">
+    <div class="stat-card">
+      <div class="stat-number">{{ total_users or 0 }}</div>
+      <div class="stat-label">Total Users</div>
+    </div>
+  </div>
+  <div class="col-md-3 mb-3">
+    <div class="stat-card success">
+      <div class="stat-number">{{ total_events or 0 }}</div>
+      <div class="stat-label">Total Events</div>
+    </div>
+  </div>
+  <div class="col-md-3 mb-3">
+    <div class="stat-card warning">
+      <div class="stat-number">{{ pending_events|length }}</div>
+      <div class="stat-label">Pending Approval</div>
+    </div>
+  </div>
+  <div class="col-md-3 mb-3">
+    <div class="stat-card info">
+      <div class="stat-number">{{ total_bookings or 0 }}</div>
+      <div class="stat-label">Total Bookings</div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-6 mb-3">
+    <div class="dashboard-section h-100">
+      <h3><i class="bi bi-lightning me-2"></i>Quick Actions</h3>
+      <a href="{{ url_for('admin_email_settings') }}" class="quick-action-btn">
+        <span class="icon"><i class="bi bi-envelope"></i></span>
+        <div>
+          <strong>Email Settings</strong>
+          <div class="small text-muted">Configure SMTP and notifications</div>
+        </div>
+      </a>
+      <a href="{{ url_for('admin_users') }}" class="quick-action-btn">
+        <span class="icon"><i class="bi bi-people"></i></span>
+        <div>
+          <strong>Manage Users</strong>
+          <div class="small text-muted">User roles and permissions</div>
+        </div>
+      </a>
+      <a href="{{ url_for('admin_halls') }}" class="quick-action-btn">
+        <span class="icon"><i class="bi bi-building"></i></span>
+        <div>
+          <strong>Manage Halls</strong>
+          <div class="small text-muted">Venue configuration</div>
+        </div>
+      </a>
+      <a href="{{ url_for('create_event') }}" class="quick-action-btn">
+        <span class="icon"><i class="bi bi-calendar-plus"></i></span>
+        <div>
+          <strong>Create Event</strong>
+          <div class="small text-muted">Add new event</div>
+        </div>
+      </a>
+    </div>
+  </div>
+  
+  <div class="col-md-6 mb-3">
+    <div class="dashboard-section h-100">
+      <h3><i class="bi bi-clock-history me-2"></i>Pending Events</h3>
+      {% if pending_events %}
+        {% for e in pending_events %}
+          <div class="booking-card">
+            <div class="booking-info">
+              <div class="booking-title">{{ e.title }}</div>
+              <div class="booking-meta">
+                <i class="bi bi-calendar3 me-1"></i>{{ e.start_time.strftime('%B %d, %Y at %I:%M %p') }}
+              </div>
+              <div class="booking-meta">
+                <i class="bi bi-person me-1"></i>{{ e.organizer.full_name or e.organizer.email }}
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <form method="post" action="{{ url_for('admin_approve_event', event_id=e.id) }}">
+                <button class="btn btn-success btn-sm"><i class="bi bi-check-lg me-1"></i>Approve</button>
+              </form>
+              <a href="{{ url_for('event_detail', event_id=e.id) }}" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-eye"></i>
+              </a>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state py-4">
+          <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
+          <h5 class="mt-2 mb-0">All events approved!</h5>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="dashboard-section">
+  <h3><i class="bi bi-people me-2"></i>Recent Users</h3>
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Joined</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+          <tr>
+            <td><strong>{{ u.full_name or 'N/A' }}</strong></td>
+            <td>{{ u.email or u.student_id }}</td>
+            <td><span class="role-badge {{ u.role }}">{{ u.role }}</span></td>
+            <td>
+              {% if u.active %}
+                <span class="badge bg-success">Active</span>
+              {% else %}
+                <span class="badge bg-danger">Inactive</span>
+              {% endif %}
+            </td>
+            <td>{{ u.created_at.strftime('%b %d, %Y') if u.created_at else 'N/A' }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="5" class="text-center text-muted">No users found</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="mt-3">
+    <a href="{{ url_for('admin_users') }}" class="btn btn-outline-primary">
+      <i class="bi bi-arrow-right me-1"></i>View All Users
+    </a>
+  </div>
+</div>
+{% endblock %}

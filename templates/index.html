@@ -1,0 +1,78 @@
+{% extends "layout.html" %}
+{% block title %}Welcome - Cauvery College for Women{% endblock %}
+
+{% block content %}
+<div class="hero-section mb-4">
+  <div class="row align-items-center">
+    <div class="col-lg-8">
+      <h1>Welcome to Cauvery College for Women</h1>
+      <p class="mb-3">Discover and book exciting events. Join workshops, cultural programs, and academic activities!</p>
+      {% if not current_user.is_authenticated %}
+      <a href="{{ url_for('register') }}" class="btn btn-light btn-lg me-2">
+        <i class="bi bi-person-plus me-2"></i>Get Started
+      </a>
+      <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">
+        <i class="bi bi-box-arrow-in-right me-2"></i>Login
+      </a>
+      {% else %}
+      <a href="{{ url_for('event_list') }}" class="btn btn-light btn-lg me-2">
+        <i class="bi bi-grid me-2"></i>Browse Events
+      </a>
+      <a href="{{ url_for('my_bookings') }}" class="btn btn-outline-light btn-lg">
+        <i class="bi bi-ticket-perforated me-2"></i>My Bookings
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="page-header">
+  <h2><i class="bi bi-calendar-event me-2"></i>Upcoming Events</h2>
+  <p>Don't miss out on the latest happenings in your college</p>
+</div>
+
+{% if upcoming %}
+<div class="row">
+  {% for ev in upcoming %}
+  <div class="col-md-4 mb-4">
+    <div class="event-card card h-100 fade-in">
+      {% if ev.poster_path %}
+      <img src="{{ url_for('serve_upload', filename=ev.poster_path.split('/')[-1]) }}" class="card-img-top"
+        alt="{{ ev.title }}">
+      {% else %}
+      <div class="card-img-top d-flex align-items-center justify-content-center"
+        style="height:200px; background: linear-gradient(135deg, #dbeafe 0%, #ede9fe 100%);">
+        <i class="bi bi-calendar-event text-primary" style="font-size: 3rem; opacity: 0.5;"></i>
+      </div>
+      {% endif %}
+      <div class="card-body d-flex flex-column">
+        <h5 class="event-title">{{ ev.title }}</h5>
+        <div class="event-meta"><i class="bi bi-calendar3"></i> {{ ev.start_time.strftime('%B %d, %Y') }}</div>
+        <div class="event-meta"><i class="bi bi-clock"></i> {{ ev.start_time.strftime('%I:%M %p') }}</div>
+        <div class="event-meta"><i class="bi bi-geo-alt"></i> {{ ev.hall.name if ev.hall else 'TBD' }}</div>
+        {% if ev.category %}
+        <span class="badge bg-primary mt-2 align-self-start">{{ ev.category.name }}</span>
+        {% endif %}
+        <div class="mt-auto pt-3">
+          <a href="{{ url_for('event_detail', event_id=ev.id) }}" class="btn btn-primary w-100">
+            <i class="bi bi-eye me-1"></i>View Details
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<div class="text-center mt-3">
+  <a href="{{ url_for('event_list') }}" class="btn btn-outline-primary btn-lg">
+    <i class="bi bi-grid me-2"></i>View All Events
+  </a>
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-state-icon"><i class="bi bi-calendar-x"></i></div>
+  <h3>No Upcoming Events</h3>
+  <p>Check back soon for exciting events!</p>
+</div>
+{% endif %}
+{% endblock %}

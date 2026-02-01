@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+{% block title %}Email Settings{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+      <h1><i class="bi bi-envelope me-2"></i>Email Settings</h1>
+      <p>Configure SMTP server for sending ticket confirmations and notifications</p>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ url_for('admin_dashboard') }}">
+      <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+    </a>
+  </div>
+</div>
+
+<div class="dashboard-section">
+  <form method="post">
+    <div class="row g-4">
+      <div class="col-md-6">
+        <label class="form-label">SMTP Server</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-server"></i></span>
+          <input name="mail_server" class="form-control" value="{{ current.MAIL_SERVER }}" placeholder="smtp.gmail.com">
+        </div>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Port</label>
+        <input name="mail_port" type="number" class="form-control" value="{{ current.MAIL_PORT }}" placeholder="587">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Default Sender</label>
+        <input name="mail_default_sender" class="form-control" value="{{ current.MAIL_DEFAULT_SENDER }}" placeholder="noreply@college.edu">
+      </div>
+      
+      <div class="col-md-6">
+        <label class="form-label">Username</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-person"></i></span>
+          <input name="mail_username" class="form-control" value="{{ current.MAIL_USERNAME }}" placeholder="your-email@gmail.com">
+        </div>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Password</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-lock"></i></span>
+          <input name="mail_password" type="password" class="form-control" placeholder="Enter to update" value="{{ masked_password }}">
+        </div>
+        <div class="form-text">Leave blank to keep existing password</div>
+      </div>
+      
+      <div class="col-12">
+        <div class="d-flex gap-4">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="mail_use_tls" name="mail_use_tls" {% if current.MAIL_USE_TLS == '1' or current.MAIL_USE_TLS == 'True' or current.MAIL_USE_TLS == true %}checked{% endif %}>
+            <label class="form-check-label" for="mail_use_tls">
+              <i class="bi bi-shield-check me-1"></i>Use TLS
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="mail_use_ssl" name="mail_use_ssl" {% if current.MAIL_USE_SSL == '1' or current.MAIL_USE_SSL == 'True' or current.MAIL_USE_SSL == true %}checked{% endif %}>
+            <label class="form-check-label" for="mail_use_ssl">
+              <i class="bi bi-shield-lock me-1"></i>Use SSL
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <hr>
+        <button class="btn btn-primary btn-lg" type="submit">
+          <i class="bi bi-check-lg me-1"></i>Save Settings
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<div class="alert alert-info mt-4">
+  <i class="bi bi-info-circle me-2"></i>
+  <strong>Tip:</strong> For Gmail, enable "App Passwords" in your Google account security settings and use that password here. Use port 587 with TLS enabled.
+</div>
+{% endblock %}

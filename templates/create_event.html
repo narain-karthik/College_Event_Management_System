@@ -1,0 +1,130 @@
+{% extends "layout.html" %}
+{% block title %}{{ "Edit Event" if edit else "Create Event" }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1><i class="bi bi-calendar-plus me-2"></i>{{ "Edit Event" if edit else "Create New Event" }}</h1>
+  <p>{{ "Update your event details" if edit else "Fill in the details to create a new event" }}</p>
+</div>
+
+<div class="row">
+  <div class="col-lg-8">
+    <div class="dashboard-section">
+      <form method="post" enctype="multipart/form-data">
+        <div class="mb-4">
+          <label class="form-label">Event Title <span class="text-danger">*</span></label>
+          <input name="title" class="form-control form-control-lg" placeholder="Enter event title" required value="{{ event.title if edit else '' }}">
+        </div>
+        
+        <div class="mb-4">
+          <label class="form-label">Description</label>
+          <textarea name="description" class="form-control" rows="4" placeholder="Describe your event...">{{ event.description if edit else '' }}</textarea>
+        </div>
+        
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <label class="form-label">Category</label>
+            <select name="category_id" class="form-select">
+              <option value="">Select category</option>
+              {% for c in categories %}
+                <option value="{{ c.id }}" {% if edit and event.category_id==c.id %}selected{% endif %}>{{ c.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Venue <span class="text-danger">*</span></label>
+            <select name="hall_id" class="form-select" required>
+              {% for h in halls %}
+                <option value="{{ h.id }}" {% if edit and event.hall_id==h.id %}selected{% endif %}>{{ h.name }} (Capacity: {{ h.capacity }})</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <label class="form-label">Start Date & Time <span class="text-danger">*</span></label>
+            <input type="datetime-local" name="start_time" class="form-control" required value="{{ event.start_time.strftime('%Y-%m-%dT%H:%M') if edit and event.start_time else '' }}">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">End Date & Time <span class="text-danger">*</span></label>
+            <input type="datetime-local" name="end_time" class="form-control" required value="{{ event.end_time.strftime('%Y-%m-%dT%H:%M') if edit and event.end_time else '' }}">
+          </div>
+        </div>
+        
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <label class="form-label">Event Capacity</label>
+            <input name="capacity" class="form-control" type="number" min="0" placeholder="0 = use hall capacity" value="{{ event.capacity if edit else 0 }}">
+            <div class="form-text">Set to 0 to use the venue's capacity</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Event Poster</label>
+            <input name="poster" type="file" class="form-control" accept="image/*">
+            <div class="form-text">Upload an image for your event poster</div>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label">Invitation Document</label>
+          <input name="invitation" type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
+          <div class="form-text">Upload an invitation document (PDF or Image) for students to download</div>
+          {% if edit and event.invitation_path %}
+            <div class="mt-2">
+              <i class="bi bi-file-earmark-text me-1"></i>
+              <a href="{{ url_for('serve_upload', filename=event.invitation_path.split('/')[-1]) }}" target="_blank">View Current Invitation</a>
+            </div>
+          {% endif %}
+        </div>
+        
+        <div class="mb-4">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="requires_faculty" name="requires_faculty" value="1"
+                   {% if edit and event.requires_faculty_approval %}checked{% endif %}>
+            <label class="form-check-label" for="requires_faculty">
+              <i class="bi bi-mortarboard me-1"></i>Require faculty approval for bookings
+            </label>
+            <div class="form-text">Students will need faculty approval before their booking is confirmed</div>
+          </div>
+        </div>
+        
+        <hr class="my-4">
+        
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary btn-lg" type="submit">
+            <i class="bi bi-check-lg me-1"></i>{{ "Save Changes" if edit else "Create Event" }}
+          </button>
+          <a href="{{ url_for('organizer_dashboard') }}" class="btn btn-outline-secondary btn-lg">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <div class="col-lg-4">
+    <div class="dashboard-section">
+      <h5><i class="bi bi-lightbulb me-2"></i>Tips</h5>
+      <ul class="list-unstyled mb-0">
+        <li class="mb-2">
+          <i class="bi bi-check-circle text-success me-2"></i>
+          <span class="small">Choose a clear, descriptive title</span>
+        </li>
+        <li class="mb-2">
+          <i class="bi bi-check-circle text-success me-2"></i>
+          <span class="small">Add a detailed description to attract attendees</span>
+        </li>
+        <li class="mb-2">
+          <i class="bi bi-check-circle text-success me-2"></i>
+          <span class="small">Upload an eye-catching poster image</span>
+        </li>
+        <li class="mb-2">
+          <i class="bi bi-check-circle text-success me-2"></i>
+          <span class="small">Select the appropriate venue based on expected attendance</span>
+        </li>
+        <li>
+          <i class="bi bi-info-circle text-info me-2"></i>
+          <span class="small">Events require admin approval before they become visible</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

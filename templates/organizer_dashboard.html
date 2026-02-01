@@ -1,0 +1,185 @@
+{% extends "layout.html" %}
+{% block title %}Organizer Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1><i class="bi bi-calendar-plus me-2"></i>Organizer Dashboard</h1>
+  <p>Create and manage your college events</p>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-3 mb-3">
+    <div class="stat-card">
+      <div class="stat-number">{{ my_events|length }}</div>
+      <div class="stat-label">My Events</div>
+    </div>
+  </div>
+  <div class="col-md-3 mb-3">
+    <div class="stat-card warning">
+      <div class="stat-number">{{ pending_bookings|length }}</div>
+      <div class="stat-label">Pending Approvals</div>
+    </div>
+  </div>
+  <div class="col-md-3 mb-3">
+    <div class="stat-card success">
+      <div class="stat-number">{{ total_bookings or 0 }}</div>
+      <div class="stat-label">Total Bookings</div>
+    </div>
+  </div>
+  <div class="col-md-3 mb-3">
+    <div class="stat-card info">
+      <div class="stat-number">{{ upcoming_events|length }}</div>
+      <div class="stat-label">Upcoming Events</div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-4">
+  <div class="col-md-4 mb-3">
+    <div class="dashboard-section h-100">
+      <h3><i class="bi bi-lightning me-2"></i>Quick Actions</h3>
+      <a href="{{ url_for('create_event') }}" class="quick-action-btn">
+        <span class="icon"><i class="bi bi-plus-lg"></i></span>
+        <div>
+          <strong>Create New Event</strong>
+          <div class="small text-muted">Add a new event</div>
+        </div>
+      </a>
+      <a href="{{ url_for('organizer_bookings') }}" class="quick-action-btn">
+        <span class="icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><i class="bi bi-ticket-perforated"></i></span>
+        <div>
+          <strong>Manage Bookings</strong>
+          <div class="small text-muted">View and approve bookings</div>
+        </div>
+      </a>
+      <a href="{{ url_for('event_list') }}" class="quick-action-btn">
+        <span class="icon" style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);"><i class="bi bi-grid"></i></span>
+        <div>
+          <strong>All Events</strong>
+          <div class="small text-muted">Browse all events</div>
+        </div>
+      </a>
+    </div>
+  </div>
+  
+  <div class="col-md-8 mb-3">
+    <div class="dashboard-section h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3><i class="bi bi-calendar-check me-2"></i>My Events</h3>
+        <a href="{{ url_for('create_event') }}" class="btn btn-primary btn-sm">
+          <i class="bi bi-plus-lg me-1"></i>Create Event
+        </a>
+      </div>
+      
+      {% if my_events %}
+        <div class="table-responsive">
+          <table class="table mb-0">
+            <thead>
+              <tr>
+                <th>Event</th>
+                <th>Date</th>
+                <th>Venue</th>
+                <th>Status</th>
+                <th>Bookings</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for e in my_events %}
+                <tr>
+                  <td><strong>{{ e.title }}</strong></td>
+                  <td>{{ e.start_time.strftime('%b %d, %Y') }}</td>
+                  <td>{{ e.hall.name if e.hall else 'TBD' }}</td>
+                  <td>
+                    {% if e.status == 'approved' %}
+                      <span class="badge bg-success">Approved</span>
+                    {% elif e.status == 'pending' %}
+                      <span class="badge bg-warning">Pending</span>
+                    {% elif e.status == 'cancelled' %}
+                      <span class="badge bg-danger">Cancelled</span>
+                    {% else %}
+                      <span class="badge bg-info">{{ e.status }}</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ e.booking_count or 0 }}</td>
+                  <td>
+                    <a href="{{ url_for('event_detail', event_id=e.id) }}" class="btn btn-outline-primary btn-sm">
+                      <i class="bi bi-eye"></i>
+                    </a>
+                    <a href="{{ url_for('edit_event', event_id=e.id) }}" class="btn btn-outline-secondary btn-sm">
+                      <i class="bi bi-pencil"></i>
+                    </a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state py-4">
+          <i class="bi bi-calendar-plus" style="font-size: 2.5rem; opacity: 0.5;"></i>
+          <h5 class="mt-2">No Events Yet</h5>
+          <p class="text-muted">Create your first event to get started!</p>
+          <a href="{{ url_for('create_event') }}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Create Event
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="dashboard-section">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3><i class="bi bi-hourglass-split me-2"></i>Pending Booking Approvals</h3>
+    <a href="{{ url_for('organizer_bookings') }}" class="btn btn-outline-primary btn-sm">View All</a>
+  </div>
+  
+  {% if pending_bookings %}
+    <div class="row">
+      {% for b in pending_bookings[:8] %}
+        <div class="col-md-6 mb-3">
+          <div class="booking-card">
+            <div class="booking-info">
+              <div class="booking-title">{{ b.event.title }}</div>
+              <div class="booking-meta">
+                <i class="bi bi-person me-1"></i>{{ b.user.full_name or b.user.email }}
+              </div>
+              <div class="booking-meta">
+                <i class="bi bi-calendar3 me-1"></i>{{ b.created_at.strftime('%b %d, %Y') }}
+              </div>
+              <div class="mt-2">
+                {% if b.faculty_approved %}
+                  <span class="approval-badge approved"><i class="bi bi-check"></i> Faculty</span>
+                {% else %}
+                  <span class="approval-badge pending"><i class="bi bi-clock"></i> Faculty</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="d-flex flex-column gap-2">
+              <form method="post" action="{{ url_for('organizer_approve_booking', booking_id=b.id) }}">
+                <button class="btn btn-success btn-sm w-100"><i class="bi bi-check-lg me-1"></i>Approve</button>
+              </form>
+              <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('view_ticket', booking_id=b.id) }}" target="_blank">
+                <i class="bi bi-ticket-perforated me-1"></i>Ticket
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    {% if pending_bookings|length > 8 %}
+      <div class="text-center mt-3">
+        <a href="{{ url_for('organizer_bookings') }}" class="btn btn-primary">
+          View All {{ pending_bookings|length }} Pending Bookings
+        </a>
+      </div>
+    {% endif %}
+  {% else %}
+    <div class="empty-state py-4">
+      <i class="bi bi-check-circle text-success" style="font-size: 2.5rem;"></i>
+      <h5 class="mt-2">All caught up!</h5>
+      <p class="text-muted mb-0">No pending bookings require your approval</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

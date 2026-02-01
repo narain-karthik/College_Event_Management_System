@@ -1,0 +1,98 @@
+{% extends "layout.html" %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+<div class="page-header">
+  <h1><i class="bi bi-person-circle me-2"></i>My Profile</h1>
+  <p>Manage your account information</p>
+</div>
+
+<div class="row">
+  <div class="col-lg-8">
+    <div class="dashboard-section">
+      <form method="post">
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <label class="form-label">Full Name</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-person"></i></span>
+              <input class="form-control" name="full_name" value="{{ current_user.full_name or '' }}" placeholder="Your full name">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Phone Number</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+              <input class="form-control" name="phone" value="{{ current_user.phone or '' }}" placeholder="Your phone number">
+            </div>
+          </div>
+        </div>
+        
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <label class="form-label">Department</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-building"></i></span>
+              <input class="form-control" name="department" value="{{ current_user.department or '' }}" placeholder="e.g., Computer Science">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Year / Position</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-mortarboard"></i></span>
+              <input class="form-control" name="year" value="{{ current_user.year or '' }}" placeholder="e.g., 3rd Year or Professor">
+            </div>
+          </div>
+        </div>
+        
+        <button class="btn btn-primary btn-lg" type="submit">
+          <i class="bi bi-check-lg me-1"></i>Save Changes
+        </button>
+      </form>
+    </div>
+  </div>
+  
+  <div class="col-lg-4">
+    <div class="dashboard-section">
+      <h5><i class="bi bi-info-circle me-2"></i>Account Info</h5>
+      <ul class="list-unstyled mb-0">
+        <li class="d-flex justify-content-between py-2 border-bottom">
+          <span class="text-muted">Email</span>
+          <strong>{{ current_user.email }}</strong>
+        </li>
+        {% if current_user.student_id %}
+        <li class="d-flex justify-content-between py-2 border-bottom">
+          <span class="text-muted">Student ID</span>
+          <strong>{{ current_user.student_id }}</strong>
+        </li>
+        {% endif %}
+        <li class="d-flex justify-content-between py-2 border-bottom">
+          <span class="text-muted">Role</span>
+          <span class="role-badge {{ current_user.role }}">{{ current_user.role }}</span>
+        </li>
+        <li class="d-flex justify-content-between py-2">
+          <span class="text-muted">Member Since</span>
+          <strong>{{ current_user.created_at.strftime('%b %Y') if current_user.created_at else 'N/A' }}</strong>
+        </li>
+      </ul>
+    </div>
+    
+    <div class="dashboard-section mt-4">
+      <h5><i class="bi bi-lightning me-2"></i>Quick Links</h5>
+      <a href="{{ url_for('my_bookings') }}" class="quick-action-btn">
+        <span class="icon"><i class="bi bi-ticket-perforated"></i></span>
+        <div>
+          <strong>My Bookings</strong>
+          <div class="small text-muted">View your event bookings</div>
+        </div>
+      </a>
+      <a href="{{ url_for('event_list') }}" class="quick-action-btn">
+        <span class="icon" style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);"><i class="bi bi-calendar-event"></i></span>
+        <div>
+          <strong>Browse Events</strong>
+          <div class="small text-muted">Find events to attend</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}
